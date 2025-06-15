@@ -35,3 +35,5 @@ class RabbitMqPublisher:
         
 rabbit_mq_publisher = RabbitMqPublisher()
 rabbit_mq_publisher.send_message({ "msg": "first message"})
+
+#https://api.telegram.org/bot<SEU_TOKEN>/getUpdates

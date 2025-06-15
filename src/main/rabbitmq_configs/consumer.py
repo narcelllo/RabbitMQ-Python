@@ -1,12 +1,6 @@
+from .callback import rebbitmq_callback
 import pika
-import json
-
-def rebbitmq_callback(ch, method, properties, body):
-    msg = body.decode("utf-8")
-    formated_msg = json.loads(msg)
-    print(formated_msg)
-    print(type(formated_msg))
-
+    
 class RabbitMqConsumer:
     def __init__(self) -> None:
         self.__host = "localhost"
