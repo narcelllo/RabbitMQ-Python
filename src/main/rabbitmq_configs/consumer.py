@@ -1,14 +1,19 @@
 import pika
 import json
 
-class RabbitMqPublisher:
+def rebbitmq_callback(ch, method, properties, body):
+    msg = body.decode("utf-8")
+    formated_msg = json.loads(msg)
+    print(formated_msg)
+    print(type(formated_msg))
+
+class RabbitMqConsumer:
     def __init__(self) -> None:
         self.__host = "localhost"
         self.__port = "5672"
         self.__username = "guest"
         self.__password = "guest"
-        self.__exchange = "minha_exchange"
-        self.__routing_key = ""
+        self.__queue = "minha_queue"
         self.__channel = self.create_channel()
 
     def create_channel(self):
@@ -19,19 +24,19 @@ class RabbitMqPublisher:
               username=self.__username,
               password=self.__password
           )
-
-        ) 
+        )
 
         channel = pika.BlockingConnection(connetion_parameters).channel()
+        channel.queue_declare(
+            self.__queue,
+            durable=True
+        )
+        channel.basic_consume(
+            queue=self.__queue,
+            auto_ack=True,
+            on_message_callback=rebbitmq_callback
+        )
         return channel
     
-    def send_message(self, body: dict):
-        self.__channel.basic_publish(
-            exchange=self.__exchange,
-            routing_key=self.__routing_key,
-            body=json.dumps(body),
-            properties=pika.BasicProperties(delivery_mode=2)
-        )
-        
-rabbit_mq_publisher = RabbitMqPublisher()
-rabbit_mq_publisher.send_message({ "msg": "first message"})
+    def start(self):
+        self.__channel.start_consuming()
